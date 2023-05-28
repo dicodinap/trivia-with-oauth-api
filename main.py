@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status
-from db.user_repository import user_repository
+from db import user_repository
 
 
 app = FastAPI()

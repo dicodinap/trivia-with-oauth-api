@@ -5,10 +5,11 @@ router = APIRouter()
 
 
 class User(BaseModel):
-    name: str
+    username: str
+    full_name: str
     age: int | None = None
     email: str
-    disabled: bool = None
+    disabled: bool
 
 
 class UserInDB(User):

@@ -1,6 +1,6 @@
 from models.client import db_client
 from models.user_scheme import UserInDB
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from typing import Annotated
@@ -16,7 +16,13 @@ router = APIRouter()
 
 
 def get_user(username: str):
-    return collection.find_one({'username': username})
+    user = collection.find_one({'username': username})
+    return user
+
+
+def get_user_db(username: str):
+    user = collection.find_one({'username': username})
+    return UserInDB(**user)
 
 
 def get_password(username: str):
@@ -40,3 +46,14 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post('/create')
+async def create_user(user: dict):
+    user_new = get_user(user['username'])
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Credential not allowed")
+
+    collection.insert_one(user)
+    return user_new

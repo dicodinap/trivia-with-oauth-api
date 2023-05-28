@@ -1,5 +1,5 @@
 from models.user_scheme import User, UserInDB
-from db.user_repository import get_user, get_password
+from db import user_repository
 
 
 from fastapi import APIRouter, HTTPException, Depends, status
@@ -20,10 +20,10 @@ oauth2_schem = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def authenticate_user(username: str, password: str):
-    user = get_user(username)
+    user = user_repository.get_user(username)
     if not user:
         return False
-    if not pwd_context.verify(password, get_password(user)):
+    if not pwd_context.verify(password, user_repository.get_password(user)):
         return False
     return user
 
@@ -53,7 +53,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_schem)]):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = get_user(username)
+    user = user_repository.get_user(username)
     return user
 
 
